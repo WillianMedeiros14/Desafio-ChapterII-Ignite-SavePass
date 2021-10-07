@@ -25,7 +25,7 @@ O app salva os dados no AsyncStorage.
 # Instale as dependências
  yarn
 
-# Execute a aplicação (Android)
+# Execute a aplicação
  expo start
 
 ```
