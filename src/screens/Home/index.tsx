@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { Alert } from 'react-native';
 
 import { Header } from '../../components/Header';
 import { SearchBar } from '../../components/SearchBar';
@@ -31,14 +32,40 @@ export function Home() {
   async function loadData() {
     const dataKey = '@savepass:logins';
     // Get asyncStorage data, use setSearchListData and setData
+    try {
+      const data = await AsyncStorage.getItem(dataKey);
+      const storageData = data ? JSON.parse(data) : [];
+      
+      setData(storageData);
+      setSearchListData(storageData);
+
+    } catch (error) {
+      Alert.alert("Não foi possível buscar os dados");
+    }
+
   }
 
   function handleFilterLoginData() {
     // Filter results inside data, save with setSearchListData
+    if (searchText.length === 0){
+      return setSearchListData(data)
+    }
+
+    const loginSearch = data.filter((busca: LoginDataProps) => 
+      busca.service_name.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    setSearchListData(loginSearch)
   }
 
   function handleChangeInputText(text: string) {
     // Update searchText value
+
+    setSearchText(text);
+    if(text === ''){
+      setSearchListData(data);
+    }
+  
   }
 
   useFocusEffect(useCallback(() => {
@@ -56,7 +83,7 @@ export function Home() {
       <Container>
         <SearchBar
           placeholder="Qual senha você procura?"
-          onChangeText={handleChangeInputText}
+          onChangeText={(text) => handleChangeInputText(text)}
           value={searchText}
           returnKeyType="search"
           onSubmitEditing={handleFilterLoginData}
